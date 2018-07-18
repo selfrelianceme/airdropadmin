@@ -9,12 +9,12 @@ use Shares;
 class AirDropAdminController extends Controller
 {
 	public function index(){
-		$airdrops = Users_AirDrop::with(['user', 'user.upline'])->orderBy('status', 'asc')->paginate(20);
+		$airdrops = Users_AirDrop::with(['user', 'user.upline'])->whereNotIn('status', [1,2])->orderBy('status', 'asc')->paginate(20);
 		return view('airdropadmin::table')->with(compact('airdrops'));
 	}
 
 	public function confirm($id){
-		$find = Users_AirDrop::where('id', $id)->where('status', 0)->firstOrFail();
+		$find = Users_AirDrop::where('id', $id)->firstOrFail();
 		Shares::addShares([
 			'share_id'        => 1,
 			'user_id'         => $find->user_id,
@@ -46,7 +46,7 @@ class AirDropAdminController extends Controller
 	}
 
 	public function destroy($id){
-		$find = Users_AirDrop::where('id', $id)->where('status', 0)->firstOrFail();
+		$find = Users_AirDrop::where('id', $id)->firstOrFail();
 		$find->delete();
 		\Session::flash('success','Заявка удалена ID AirDrop: '.$id);
         return redirect()->back();
